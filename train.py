@@ -125,6 +125,13 @@ def create_model(input_shape, anchors, num_classes, load_pretrained=True, freeze
             for i in range(num): model_body.layers[i].trainable = False
             print('Freeze the first {} layers of total {} layers.'.format(num, len(model_body.layers)))
 
+    # Instead of using a function for calculating the loss given the
+    # desired output and the predicted values, this model uses an
+    # additional layer (a lambda layer) which gets the outputs from
+    # the penultimate layer (the one before this landa layer) and the
+    # expected values as inputs and generates the loss directly as its
+    # output.
+
     model_loss = Lambda(yolo_loss, output_shape=(1,), name='yolo_loss',
         arguments={'anchors': anchors, 'num_classes': num_classes, 'ignore_thresh': 0.5})(
         [*model_body.output, *y_true])
